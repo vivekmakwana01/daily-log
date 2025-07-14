@@ -2,15 +2,17 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { X } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
+import { useDebounce } from "use-debounce"
 
 interface TagSelectorProps {
   tags: string[]
   setTags: (tags: string[]) => void
-  suggestions: string[]
 }
 
-export function TagSelector({ tags, setTags, suggestions }: TagSelectorProps) {
+export function TagSelector({ tags, setTags }: TagSelectorProps) {
   const [input, setInput] = useState("")
+  const [debouncedInput] = useDebounce(input, 300)
 
   const addTag = (tag: string) => {
     const trimmed = tag.trim()
@@ -24,9 +26,16 @@ export function TagSelector({ tags, setTags, suggestions }: TagSelectorProps) {
     setTags(tags.filter((t) => t !== tag))
   }
 
-  const filteredSuggestions = suggestions
-    .filter((s) => s.toLowerCase().includes(input.toLowerCase()) && !tags.includes(s))
-    .slice(0, 5)
+  const { data: suggestions = [] } = useQuery<string[]>({
+    queryKey: ["tags", debouncedInput],
+    queryFn: async () => {
+      const res = await fetch(`/api/tags?search=${debouncedInput}`)
+      return res.json()
+    },
+    enabled: debouncedInput.length > 0,
+  })
+
+  const filteredSuggestions = suggestions.filter((s) => !tags.includes(s)).slice(0, 5)
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === ",") {
@@ -54,7 +63,7 @@ export function TagSelector({ tags, setTags, suggestions }: TagSelectorProps) {
         ))}
       </div>
       <Input
-        placeholder="Type and press Enter"
+        placeholder="Type to add a tag"
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
