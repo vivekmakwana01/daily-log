@@ -1,0 +1,58 @@
+├── D:\code\daily-log\client
+│  ├── D:\code\daily-log\client\public
+│  │  └── D:\code\daily-log\client\public\vite.svg
+│  ├── D:\code\daily-log\client\src
+│  │  ├── D:\code\daily-log\client\src\assets
+│  │  │  └── D:\code\daily-log\client\src\assets\beaver.svg
+│  │  ├── D:\code\daily-log\client\src\components
+│  │  │  ├── D:\code\daily-log\client\src\components\ui
+│  │  │  │  ├── D:\code\daily-log\client\src\components\ui\badge.tsx
+│  │  │  │  ├── D:\code\daily-log\client\src\components\ui\button.tsx
+│  │  │  │  ├── D:\code\daily-log\client\src\components\ui\calendar.tsx
+│  │  │  │  ├── D:\code\daily-log\client\src\components\ui\card.tsx
+│  │  │  │  ├── D:\code\daily-log\client\src\components\ui\input.tsx
+│  │  │  │  └── D:\code\daily-log\client\src\components\ui\textarea.tsx
+│  │  │  ├── D:\code\daily-log\client\src\components\DailyLogForm.tsx
+│  │  │  ├── D:\code\daily-log\client\src\components\LogCard.tsx
+│  │  │  └── D:\code\daily-log\client\src\components\ThemeToggle.tsx
+│  │  ├── D:\code\daily-log\client\src\lib
+│  │  │  └── D:\code\daily-log\client\src\lib\utils.ts
+│  │  ├── D:\code\daily-log\client\src\pages
+│  │  │  └── D:\code\daily-log\client\src\pages\HomePage.tsx
+│  │  ├── D:\code\daily-log\client\src\App.tsx
+│  │  ├── D:\code\daily-log\client\src\index.css
+│  │  ├── D:\code\daily-log\client\src\main.tsx
+│  │  └── D:\code\daily-log\client\src\vite-env.d.ts
+│  ├── D:\code\daily-log\client\.gitignore
+│  ├── D:\code\daily-log\client\components.json
+│  ├── D:\code\daily-log\client\eslint.config.js
+│  ├── D:\code\daily-log\client\index.html
+│  ├── D:\code\daily-log\client\package.json
+│  ├── D:\code\daily-log\client\README.md
+│  ├── D:\code\daily-log\client\tsconfig.app.json
+│  ├── D:\code\daily-log\client\tsconfig.json
+│  ├── D:\code\daily-log\client\tsconfig.node.json
+│  └── D:\code\daily-log\client\vite.config.ts
+├── D:\code\daily-log\server
+│  ├── D:\code\daily-log\server\src
+│  │  └── D:\code\daily-log\server\src\index.ts
+│  ├── D:\code\daily-log\server\.gitignore
+│  ├── D:\code\daily-log\server\bun.lock
+│  ├── D:\code\daily-log\server\package.json
+│  ├── D:\code\daily-log\server\README.md
+│  └── D:\code\daily-log\server\tsconfig.json
+├── D:\code\daily-log\shared
+│  ├── D:\code\daily-log\shared\src
+│  │  ├── D:\code\daily-log\shared\src\types
+│  │  │  └── D:\code\daily-log\shared\src\types\index.ts
+│  │  └── D:\code\daily-log\shared\src\index.ts
+│  ├── D:\code\daily-log\shared\package.json
+│  └── D:\code\daily-log\shared\tsconfig.json
+├── D:\code\daily-log\.gitignore
+├── D:\code\daily-log\bun.lock
+├── D:\code\daily-log\Get-CleanTree.ps1
+├── D:\code\daily-log\LICENSE
+├── D:\code\daily-log\package.json
+├── D:\code\daily-log\README.md
+├── D:\code\daily-log\tree.txt
+└── D:\code\daily-log\tsconfig.json
