@@ -5,21 +5,24 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { format } from 'date-fns'
 import { useState } from 'react'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { CalendarIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { TagSelector } from './TagSelector'
+import { LogEntry } from 'shared'
 
 const logSchema = z.object({
   note: z.string().min(1),
-  tags: z.string().optional(),
   links: z.string().optional(),
   date: z.date()
 })
 
-export function DailyLogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
+export function DailyLogForm({ onSubmit, existingLogs }: { onSubmit: (data: any) => void; existingLogs: LogEntry[] }) {
   const [date, setDate] = useState<Date | undefined>(new Date())
+  const [tags, setTags] = useState<string[]>([])
+
   const {
     register,
     handleSubmit,
@@ -27,17 +30,20 @@ export function DailyLogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
     reset
   } = useForm({
     resolver: zodResolver(logSchema),
-    defaultValues: { note: '', tags: '', links: '', date: new Date() }
+    defaultValues: { note: '', links: '', date: new Date() }
   })
+
+  const allTags = Array.from(new Set(existingLogs.flatMap((log) => log.tags)))
 
   const submit = (data: any) => {
     onSubmit({
       note: data.note,
-      tags: data.tags?.split(',').map((t: string) => t.trim()),
+      tags,
       links: data.links?.split(',').map((l: string) => l.trim()),
       date: date?.toISOString()
     })
     reset()
+    setTags([])
   }
 
   return (
@@ -45,7 +51,7 @@ export function DailyLogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
       <Textarea placeholder="What did you work on today?" {...register('note')} />
       {errors.note && <p className="text-red-500 text-sm">Note is required.</p>}
 
-      <Input placeholder="#tags, comma-separated" {...register('tags')} />
+      <TagSelector tags={tags} setTags={setTags} suggestions={allTags} />
       <Input placeholder="Links (comma-separated)" {...register('links')} />
 
       <div className="flex flex-col items-start space-y-2">
@@ -53,14 +59,14 @@ export function DailyLogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
         <Popover>
           <PopoverTrigger asChild>
             <Button
-              variant={"outline"}
+              variant="outline"
               className={cn(
                 "w-[240px] justify-start text-left font-normal",
                 !date && "text-muted-foreground"
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
+              {date ? format(date, 'PPP') : <span>Pick a date</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -68,6 +74,7 @@ export function DailyLogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
               mode="single"
               selected={date}
               onSelect={setDate}
+              initialFocus
             />
           </PopoverContent>
         </Popover>

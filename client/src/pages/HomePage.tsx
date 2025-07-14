@@ -34,7 +34,7 @@ export default function HomePage() {
         <ThemeToggle />
       </div>
 
-      <DailyLogForm onSubmit={addLog.mutate} />
+      <DailyLogForm onSubmit={addLog.mutate} existingLogs={[]} />
 
       <div className="mt-8 space-y-4">
         {isLoading ? (
