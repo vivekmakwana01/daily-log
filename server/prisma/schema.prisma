@@ -10,9 +10,15 @@ datasource db {
 model LogEntry {
   id        String   @id @default(cuid())
   note      String
-  tags      String[]
   links     String[]
   date      DateTime
+  tags      Tag[]    @relation("LogTags")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id    String     @id @default(cuid())
+  name  String     @unique
+  logs  LogEntry[] @relation("LogTags")
 }
