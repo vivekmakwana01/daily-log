@@ -19,7 +19,7 @@ const logSchema = z.object({
   date: z.date()
 })
 
-export function DailyLogForm({ onSubmit, existingLogs }: { onSubmit: (data: any) => void; existingLogs: LogEntry[] }) {
+export function DailyLogForm({ onSubmit }: { onSubmit: (data: any) => void; existingLogs: LogEntry[] }) {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [tags, setTags] = useState<string[]>([])
 
@@ -32,8 +32,6 @@ export function DailyLogForm({ onSubmit, existingLogs }: { onSubmit: (data: any)
     resolver: zodResolver(logSchema),
     defaultValues: { note: '', links: '', date: new Date() }
   })
-
-  const allTags = Array.from(new Set(existingLogs.flatMap((log) => log.tags)))
 
   const submit = (data: any) => {
     onSubmit({
@@ -51,7 +49,7 @@ export function DailyLogForm({ onSubmit, existingLogs }: { onSubmit: (data: any)
       <Textarea placeholder="What did you work on today?" {...register('note')} />
       {errors.note && <p className="text-red-500 text-sm">Note is required.</p>}
 
-      <TagSelector tags={tags} setTags={setTags} suggestions={allTags} />
+      <TagSelector tags={tags} setTags={setTags} />
       <Input placeholder="Links (comma-separated)" {...register('links')} />
 
       <div className="flex flex-col items-start space-y-2">
