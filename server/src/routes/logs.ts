@@ -12,7 +12,10 @@ const LogSchema = z.object({
 })
 
 logs.get('/', async (c) => {
+  const status = c.req.query('status') || 'active'
+  
   const entries = await prisma.logEntry.findMany({
+    where: { status },
     orderBy: { date: 'desc' },
     include: { tags: true }
   })
@@ -63,6 +66,27 @@ logs.post('/', async (c) => {
     ...log,
     tags: log.tags.map((t) => t.name),
   })
+})
+
+logs.patch('/:id', async (c) => {
+  const id = c.req.param('id')
+  const body = await c.req.json()
+
+  const schema = z.object({
+    status: z.enum(['active', 'deleted'])
+  })
+
+  const parse = schema.safeParse(body)
+  if (!parse.success) {
+    return c.json({ error: 'Invalid request body' }, 400)
+  }
+
+  const updated = await prisma.logEntry.update({
+    where: { id },
+    data: { status: parse.data.status }
+  })
+
+  return c.json(updated)
 })
 
 export default logs

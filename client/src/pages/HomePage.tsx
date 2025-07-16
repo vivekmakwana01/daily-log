@@ -6,6 +6,7 @@ import { Sidebar } from '@/components/Sidebar'
 import { LogEntry } from 'shared'
 import { useState, useMemo } from 'react'
 import { isSameDay, isThisWeek } from 'date-fns'
+import { toast } from 'sonner'
 
 export default function HomePage() {
   const queryClient = useQueryClient()
@@ -17,7 +18,7 @@ export default function HomePage() {
   const { data: logs = [], isLoading } = useQuery<LogEntry[]>({
     queryKey: ['logs'],
     queryFn: async () => {
-      const res = await fetch('/api/logs')
+      const res = await fetch('/api/logs?status=active')
       return res.json()
     }
   })
@@ -33,6 +34,30 @@ export default function HomePage() {
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['logs'] })
   })
+
+  const deleteLog = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/logs/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'deleted' })
+      })
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['logs'] })
+      toast.success('Log deleted')
+    },
+    onError: () => {
+      toast.error('Failed to delete log')
+    }
+  })
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this log?')) {
+      deleteLog.mutate(id)
+    }
+  }
 
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
@@ -85,7 +110,9 @@ export default function HomePage() {
           {isLoading ? (
             <p>Loading...</p>
           ) : filteredLogs.length > 0 ? (
-            filteredLogs.map((log) => <LogCard key={log.id} log={log} />)
+            filteredLogs.map((log) => (
+              <LogCard key={log.id} log={log} onDelete={() => handleDelete(log.id)} />
+            ))
           ) : (
             <p>No logs found for current filters.</p>
           )}
