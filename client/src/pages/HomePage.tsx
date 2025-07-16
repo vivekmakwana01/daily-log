@@ -57,8 +57,8 @@ export default function HomePage() {
   }, [logs, search, selectedTags, period, tagMatchMode])
 
   return (
-    <main className="min-h-screen bg-background text-foreground flex">
-      <aside className="w-72 border-r border-muted p-4">
+    <main className="min-h-screen container mx-auto bg-background text-foreground flex">
+      <aside className="w-96 border-r border-muted px-4 py-6 overflow-y-auto">
         <Sidebar
           allLogs={logs}
           search={search}
@@ -73,7 +73,7 @@ export default function HomePage() {
         />
       </aside>
 
-      <section className="flex-1 p-6 max-w-4xl">
+      <section className="flex-grow px-4 py-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Daily Work Log</h1>
           <ThemeToggle />
