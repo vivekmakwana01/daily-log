@@ -1,24 +1,33 @@
 import { Hono } from 'hono'
+import { zValidator } from '@hono/zod-validator'
 import { prisma } from '../prisma'
+import { TagCreateInput, TagQuery } from '../schemas/tagSchema'
 
 const tags = new Hono()
 
-// GET /api/tags?search=bug
-tags.get('/', async (c) => {
-  const search = c.req.query('search') || ''
+// GET /tags?q=search
+tags.get('/', zValidator('query', TagQuery), async (c) => {
+  const { q } = c.req.valid('query')
 
-  const result = await prisma.tag.findMany({
-    where: {
-      name: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
+  const results = await prisma.tag.findMany({
+    where: q ? { name: { contains: q, mode: 'insensitive' } } : undefined,
     orderBy: { name: 'asc' },
-    take: 20,
   })
 
-  return c.json(result.map(tag => tag.name))
+  return c.json(results.map((t) => t.name))
+})
+
+// POST /tags
+tags.post('/', zValidator('json', TagCreateInput), async (c) => {
+  const { name } = c.req.valid('json')
+
+  const tag = await prisma.tag.upsert({
+    where: { name },
+    create: { name },
+    update: {},
+  })
+
+  return c.json(tag)
 })
 
 export default tags

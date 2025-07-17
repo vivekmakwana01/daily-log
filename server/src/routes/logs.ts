@@ -1,23 +1,23 @@
 import { Hono } from 'hono'
-import { z } from 'zod'
+import { zValidator } from '@hono/zod-validator'
 import { prisma } from '../prisma'
+import {
+  LogEntryCreateInput,
+  LogEntryUpdateInput,
+  LogEntryQuery,
+} from '../schemas/logEntrySchema'
+import { z } from 'zod'
 
 const logs = new Hono()
 
-const LogSchema = z.object({
-  note: z.string(),
-  tags: z.array(z.string()).optional(),
-  links: z.array(z.string()).optional(),
-  date: z.string()
-})
+// GET /logs with optional status filter
+logs.get('/', zValidator('query', LogEntryQuery), async (c) => {
+  const { status = 'active' } = c.req.valid('query')
 
-logs.get('/', async (c) => {
-  const status = c.req.query('status') || 'active'
-  
   const entries = await prisma.logEntry.findMany({
     where: { status },
     orderBy: { date: 'desc' },
-    include: { tags: true }
+    include: { tags: true },
   })
 
   const formatted = entries.map((log) => ({
@@ -28,62 +28,36 @@ logs.get('/', async (c) => {
   return c.json(formatted)
 })
 
-logs.post('/', async (c) => {
-  const body = await c.req.json()
-  const data = LogSchema.parse(body)
+// POST /logs
+logs.post('/', zValidator('json', LogEntryCreateInput), async (c) => {
+  const body = c.req.valid('json')
 
-  const tagNames = data.tags || []
-
-  // Fetch existing tags
-  const existingTags = await prisma.tag.findMany({
-    where: { name: { in: tagNames } },
-  })
-
-  const existingNames = new Set(existingTags.map((t) => t.name))
-
-  // Create new tags if needed
-  const newTags = await Promise.all(
-    tagNames
-      .filter((name) => !existingNames.has(name))
-      .map((name) => prisma.tag.create({ data: { name } }))
-  )
-
-  const allTags = [...existingTags, ...newTags]
-
-  const log = await prisma.logEntry.create({
+  const entry = await prisma.logEntry.create({
     data: {
-      note: data.note,
-      date: new Date(data.date),
-      links: data.links ?? [],
+      date: new Date(body.date),
+      note: body.note,
+      status: 'active',
       tags: {
-        connect: allTags.map((t) => ({ id: t.id })),
+        connectOrCreate: (body.tags || []).map((tag) => ({
+          where: { name: tag },
+          create: { name: tag },
+        })),
       },
+      links: body.links || [],
     },
-    include: { tags: true },
   })
 
-  return c.json({
-    ...log,
-    tags: log.tags.map((t) => t.name),
-  })
+  return c.json(entry)
 })
 
-logs.patch('/:id', async (c) => {
+// PATCH /logs/:id
+logs.patch('/:id', zValidator('json', LogEntryUpdateInput), async (c) => {
   const id = c.req.param('id')
-  const body = await c.req.json()
-
-  const schema = z.object({
-    status: z.enum(['active', 'deleted'])
-  })
-
-  const parse = schema.safeParse(body)
-  if (!parse.success) {
-    return c.json({ error: 'Invalid request body' }, 400)
-  }
+  const body = c.req.valid('json')
 
   const updated = await prisma.logEntry.update({
     where: { id },
-    data: { status: parse.data.status }
+    data: { status: body.status },
   })
 
   return c.json(updated)
