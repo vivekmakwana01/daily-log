@@ -37,7 +37,10 @@ export function DailyLogForm({ onSubmit }: { onSubmit: (data: any) => void; exis
     onSubmit({
       note: data.note,
       tags,
-      links: data.links?.split(',').map((l: string) => l.trim()),
+      links: data.links
+        ?.split(',')
+        .map((l: string) => l.trim())
+        .filter((l: string) => l.length > 0),
       date: date?.toISOString()
     })
     reset()
